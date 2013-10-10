@@ -1,0 +1,167 @@
+timestamp: 2013-03-16T18:26:32.578618
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2013-03-16T18:26:32.711551
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-03-16T18:26:32.822548
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-03-16T18:26:32.934054
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2013-03-16T18:26:33.057053
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-03-16T18:26:33.178636
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2013-03-16T18:26:33.300605
+CREATE TABLE courses(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    credits INTEGER
+);
+success!
+timestamp: 2013-03-16T18:26:33.445296
+CREATE TABLE faculty(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    courses CHAR(512),
+    designation CHAR(512)
+);
+success!
+timestamp: 2013-03-16T18:26:33.592039
+CREATE TABLE student(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    institution_name CHAR(512),
+    courses_taken CHAR(512),
+    date_of_birth DATE,
+    fathers_name CHAR(512),
+    mothers_name CHAR(512),
+    address TEXT
+);
+success!
+timestamp: 2013-03-16T19:46:59.037317
+CREATE TABLE questions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course CHAR(512),
+    que_number INTEGER,
+    question CHAR(512),
+    option_a CHAR(512),
+    option_b CHAR(512),
+    option_c CHAR(512),
+    option_d CHAR(512),
+    ans CHAR(512)
+);
+success!
+timestamp: 2013-03-17T14:06:12.086271
+CREATE TABLE cnt(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    coun INTEGER
+);
+success!
+timestamp: 2013-03-17T14:36:59.469031
+ALTER TABLE student ADD coun INTEGER;
+timestamp: 2013-03-17T15:48:25.697335
+ALTER TABLE student ADD marks INTEGER;
+timestamp: 2013-03-17T15:48:25.885246
+ALTER TABLE questions ADD marks INTEGER;
+timestamp: 2013-03-17T21:27:43.391437
+ALTER TABLE questions ADD maxmarks INTEGER;
+timestamp: 2013-03-17T21:36:12.405683
+ALTER TABLE student ADD final_marks INTEGER;
+timestamp: 2013-03-17T21:36:12.609068
+ALTER TABLE questions ADD stid CHAR(512);
+timestamp: 2013-03-17T21:36:12.776755
+ALTER TABLE questions ADD obtained_marks INTEGER;
+timestamp: 2013-03-18T15:32:11.974220
+ALTER TABLE student ADD given INTEGER;
+timestamp: 2013-03-18T21:43:04.431062
+CREATE TABLE answer(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    op CHAR(512)
+);
+success!
+timestamp: 2013-03-19T00:10:11.814841
+ALTER TABLE answer ADD que_num INTEGER;
+timestamp: 2013-03-19T00:10:11.963874
+ALTER TABLE answer ADD stid CHAR(512);
+timestamp: 2013-03-19T18:44:51.273380
+CREATE TABLE see(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    course INTEGER
+);
+success!
+timestamp: 2013-03-19T18:52:15.965388
+ALTER TABLE answer ADD course INTEGER;
+timestamp: 2013-03-19T21:14:47.461539
+ALTER TABLE faculty ADD image CHAR(512);
+timestamp: 2013-03-19T21:14:47.627337
+ALTER TABLE faculty ADD about_me TEXT;
+timestamp: 2013-03-19T22:32:31.352743
+ALTER TABLE questions ADD faculty_id CHAR(512);
+timestamp: 2013-03-20T20:10:09.683717
+CREATE TABLE comments(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    que INTEGER,
+    faculty_id CHAR(512),
+    course CHAR(512)
+);
+success!
+timestamp: 2013-03-20T21:31:20.921687
+ALTER TABLE comments ADD comment_given TEXT;
+timestamp: 2013-03-21T17:42:33.406352
+CREATE TABLE times(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date_of_exam CHAR(512),
+    start_time CHAR(512),
+    end_time CHAR(512)
+);
+success!
+timestamp: 2013-03-21T22:16:07.854257
+ALTER TABLE times ADD course CHAR(512);
+timestamp: 2013-04-04T20:35:05.758201
+ALTER TABLE student ADD exam_id INTEGER;
+timestamp: 2013-04-04T20:49:36.491234
+ALTER TABLE answer ADD given INTEGER;
+timestamp: 2013-04-14T20:05:49.188861
+ALTER TABLE student ADD your_photo CHAR(512);

@@ -1,0 +1,7 @@
+{{extend 'layout.html'}}
+<div style="color:blue">
+<h3>List of Registered Students</h3>
+{{for i in range(len(k)):}}
+<pre>   <b>  {{=i+1}} : {{=k[i].first_name.capitalize()}} {{=k[i].last_name.capitalize()}}</b> </pre>
+{{pass}}
+</div>

@@ -1,0 +1,198 @@
+# -*- coding: utf-8 -*-
+# this file is released under public domain and you can use without limitations
+
+#########################################################################
+## This is a samples controller
+## - index is the default action of any application
+## - user is required for authentication and authorization
+## - download is for downloading files uploaded in the db (does streaming)
+## - call exposes all registered services (none by default)
+#########################################################################
+
+
+@auth.requires_login()
+def index():
+    """
+    example action using the internationalization operator T and flash
+    rendered by views/default/index.html or views/generic.html
+
+    if you need a simple wiki simple replace the two lines below with:
+    return auth.wiki()
+    """
+    response.flash = T("Online Examination")
+    if(auth.user):
+	 print 'on'
+	 db(auth.user.email==db.student.email).update(coun=1)
+    return dict(message=T('Hello World'))
+   
+
+
+def user():
+    """
+    exposes:
+    http://..../[app]/default/user/login
+    http://..../[app]/default/user/logout
+    http://..../[app]/default/user/register
+    http://..../[app]/default/user/profile
+    http://..../[app]/default/user/retrieve_password
+    http://..../[app]/default/user/change_password
+    use @auth.requires_login()
+        @auth.requires_membership('group name')
+        @auth.requires_permission('read','table name',record_id)
+
+    to decorate functions that need access control
+    """
+    return dict(form=auth())
+
+
+def download():
+    """
+    allows downloading of uploaded files
+    http://..../[app]/default/download/[filename]
+    """
+    return response.download(request, db)
+
+
+def call():
+    """
+    exposes services. for example:
+    http://..../[app]/default/call/jsonrpc
+    decorate with @services.jsonrpc the functions to expose
+    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
+    """
+    return service()
+
+
+@auth.requires_signature()
+def data():
+    """
+    http://..../[app]/default/data/tables
+    http://..../[app]/default/data/create/[table]
+    http://..../[app]/default/data/read/[table]/[id]
+    http://..../[app]/default/data/update/[table]/[id]
+    http://..../[app]/default/data/delete/[table]/[id]
+    http://..../[app]/default/data/select/[table]
+    http://..../[app]/default/data/search/[table]
+    but URLs must be signed, i.e. linked with
+      A('table',_href=URL('data/tables',user_signature=True))
+    or with the signed load operator
+      LOAD('default','data.load',args='tables',ajax=True,user_signature=True)
+    """
+    return dict(form=crud())
+
+
+
+
+
+#------------------------------------------------------------------------------------------------------------------------------#
+
+
+@auth.requires_login()
+def student_info():
+     a=auth.user.email
+     b=auth.user.first_name
+     c=auth.user.last_name
+     response.flash='Logged in as '+b+' '+c
+     form=SQLFORM(db.student)
+     form.vars.email=a
+     if (form.accepts(request,session)):
+	  response.flash="Personal Information Successfully Added"
+     return dict(form=form)
+
+@auth.requires_login()
+@auth.requires_membership('IIIT_FACULTY_DEPARTMENT')
+def set_paper():
+     form=SQLFORM(db.questions)
+     if form.accepts(request,session):
+	  response.flash="Question Inserted"
+     return dict(form=form)
+
+
+@auth.requires_login()
+def exam():
+     p={}
+     k=db(auth.user.email==db.student.email).select(db.student.email)
+     if k:
+          p=db(auth.user.email==db.student.email).select(db.student.coun)
+          n=p[0]['coun']
+          que={}
+          que=db(db.questions.que_number==n).select(db.questions.que_number,
+	       				            db.questions.question,
+					            db.questions.option_a,
+	                                            db.questions.option_b,
+	                                            db.questions.option_c,
+	                                            db.questions.option_d,
+					            )
+	  form=SQLFORM.factory(
+		    Field('ans',requires=IS_IN_SET(['A','B','C','D'],multiple=True),widget=SQLFORM.widgets.checkboxes.widget)
+		    )
+	  check=db((db.auth.user.id==db.answer.stid)&(n==db.answer.que_num)).select(db.answer.ALL)
+	  if check:
+	       db((db.auth.user.id==db.answer.stid)&(n==db.answer.que_num)).update(answer.op=ans)
+	  form.vars.stid=auth.user.email
+	  form.vars.que_num=n
+	  if(form.accepts(request,session)):
+	       response.flash="Answer Submitted"
+	       redirect('next')
+
+     if k:
+	  if que:
+	       return dict(que=que,form=form)
+	  else:
+	       redirect(URL('default','show'))
+     else:
+	  redirect(URL('default','student_info'))
+	  
+
+
+
+
+@auth.requires_login()
+def next():
+     p=db(auth.user.email==db.student.email).select(db.student.coun)
+     n=p[0]['coun']
+     correct=db(db.questions.que_number==n).select(db.questions.ans)
+     given=db(db.answer.id>0).select(db.answer.op,orderby=~db.answer.id)
+     if(correct[0]['ans']==given[0]['op']):
+          db(db.questions.que_number==n).update(stid=auth.user.email)
+	  db((db.questions.stid==auth.user.email)&(db.questions.que_number==n)).update(obtained_marks=4)
+     elif(correct!=given and given!=None):
+	  db(db.questions.que_number==n).update(stid=auth.user.email)
+	  db((db.questions.stid==auth.user.email)&(db.questions.que_number==n)).update(obtained_marks=-1)
+     
+     db(auth.user.email==db.student.email).update(coun=n+1)
+     que=db(db.questions.que_number>0).select(db.questions.que_number)
+     redirect(URL('default','exam'))
+
+
+def prev():
+     p=db(auth.user.email==db.student.email).select(db.student.coun)
+     n=p[0]['coun']
+     if(n-1>0):
+	  db(auth.user.email==db.student.email).update(coun=n-1)
+     if(n-1>0):
+	  redirect(URL('default','exam'))
+     else:
+	  redirect(URL('default','exam'))
+def courses():
+     return locals()
+def noq():
+     return locals()
+
+def list():
+     k=db((db.auth_membership.user_id==db.auth_user.id)&(db.auth_membership.group_id!=17)).select(db.auth_user.first_name,db.auth_user.last_name)
+     return dict(k=k)
+
+
+def faculty():
+     f=db((db.auth_membership.user_id==db.auth_user.id)&(db.auth_membership.group_id==17)).select(db.auth_user.first_name,db.auth_user.last_name)
+     return dict(f=f)
+
+def show():
+     a=auth.user.email
+     k=db(db.questions.stid==a).select(db.questions.obtained_marks)
+     marks=0
+     for i in range(len(k)):
+	  marks=marks+k[i]['obtained_marks']
+     db(auth.user.email==db.student.email).update(final_marks=marks,given=0)
+     return dict(marks=marks)

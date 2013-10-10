@@ -1,0 +1,14 @@
+{{extend 'layout.html'}}
+{{for i in range(len(ques)):}}
+<b>Q. {{=i+1}} :  
+     {{=ques[i]['question']}}<br/></b>
+A :  {{=ques[i]['option_a']}}<br/>
+B :  {{=ques[i]['option_b']}}<br/>
+C :  {{=ques[i]['option_c']}}<br/>
+D :  {{=ques[i]['option_d']}}<br/>
+<div style="color:blue">
+Correct Answer : {{=ques[i]['ans']}}<br/>
+Your Answer : {{=ans[i]['op']}}
+<br/><br/><br/>
+</div>
+{{pass}}

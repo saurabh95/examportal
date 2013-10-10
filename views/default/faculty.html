@@ -1,0 +1,10 @@
+{{extend 'layout.html'}}
+<div style="color:blue">
+     <h3>  Faculty of IIIT-Hyderabad are: </h3>
+</div>
+
+{{for i in range(len(f)):}}
+
+<pre> <b> {{=i+1}}  : {{=f[i]['first_name']}} {{=f[i]['last_name']}} </b>  </pre>
+ 
+{{pass}}
